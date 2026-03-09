@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ingestion API Payload Schemas (old vs new)",
+  "description": "Comparison document: old (v1) vs new (v2) JSON Schemas for /api/v1/records endpoints",
+  "type": "object",
+  "properties": {
+    "old_schema": {
+      "type": "object",
+      "description": "Schema used prior to the PR (v1)",
+      "properties": {
+        "id": { "type": "string" , "description": "Client-provided record id (optional)"},
+        "timestamp": { "type": "string", "format": "date-time" },
+        "payload": { "type": "object" },
+        "source": { "type": "string" }
+      },
+      "required": ["timestamp","payload","source"],
+      "additionalProperties": true
+    },
+    "new_schema": {
+      "type": "object",
+      "description": "Schema after the PR (v2). Changes: token rotation metadata, explicit schema for unique_key, and harmonized pagination metadata for list responses.",
+      "properties": {
+        "id": { "type": "string", "description": "Client-provided record id (optional). If omitted, server generates one.", "examples": ["rec_12345"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "payload": { "type": "object" },
+        "source": { "type": "string" },
+        "unique_key": { "type": "string", "description": "New explicit unique key used for de-duplication; if present, used to detect conflicts.", "examples": ["user:123:event:login"] },
+        "token": {
+          "type": "object",
+          "description": "Token metadata added to support token rotation and diagnostics.",
+          "properties": {
+            "token_id": { "type": "string", "description": "Opaque token identifier (rotation friendly)." },
+            "token_version": { "type": "integer", "description": "Incremented when token is rotated." },
+            "issued_at": { "type": "string", "format": "date-time" }
+          },
+          "required": ["token_id","token_version"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["timestamp","payload","source"],
+      "additionalProperties": false
+    },
+    "list_response_pagination_old": {
+      "type": "object",
+      "description": "Old list response metadata: page/size style",
+      "properties": {
+        "page": { "type": "integer" },
+        "size": { "type": "integer" },
+        "items": { "type": "array", "items": { "type": "object" } }
+      },
+      "required": ["page","size","items"]
+    },
+    "list_response_pagination_new": {
+      "type": "object",
+      "description": "New standardized list response metadata: cursor-first, and total for analytics",
+      "properties": {
+        "cursor": { "type": ["string","null"], "description": "Opaque cursor; null means end-of-list." },
+        "next_cursor": { "type": ["string","null"] },
+        "prev_cursor": { "type": ["string","null"] },
+        "page_size": { "type": "integer" },
+        "total": { "type": ["integer","null"], "description": "Total count when available. May be null for high-cost queries." },
+        "items": { "type": "array", "items": { "type": "object" } }
+      },
+      "required": ["cursor","page_size","items"]
+    }
+  },
+  "additionalProperties": false
+}
