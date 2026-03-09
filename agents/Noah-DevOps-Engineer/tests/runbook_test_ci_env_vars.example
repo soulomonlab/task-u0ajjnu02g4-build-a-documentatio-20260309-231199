@@ -1,0 +1,5 @@
+# Example environment variables for runbook validation tests
+# If tests should target a staging URL, set TEST_TARGET_URL
+TEST_TARGET_URL=
+# If authentication is required to access staging docs, provide a token
+STAGING_API_TOKEN=
