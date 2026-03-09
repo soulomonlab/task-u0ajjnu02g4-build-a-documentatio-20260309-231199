@@ -1,0 +1,213 @@
+openapi: 3.0.3
+info:
+  title: Features API (Task 113)
+  version: 1.0.0
+  description: API contract for frontend task #113 — list and retrieve Feature resources.
+servers:
+  - url: https://api.example.com
+paths:
+  /api/v1/features:
+    get:
+      summary: List features
+      description: Returns a paginated list of Feature resources.
+      parameters:
+        - name: page
+          in: query
+          description: 1-based page number
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          description: Items per page (max 100)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: q
+          in: query
+          description: Optional search query (title/description)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeaturesListResponse'
+              examples:
+                default:
+                  value:
+                    total_count: 123
+                    page: 1
+                    per_page: 20
+                    items:
+                      - id: "f_01GXYZ"
+                        title: "New onboarding flow"
+                        description: "A/B test for onboarding screens"
+                        created_at: "2026-03-01T12:34:56Z"
+                        updated_at: "2026-03-02T11:20:00Z"
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_params:
+                  value:
+                    error:
+                      code: "INVALID_PARAMS"
+                      message: "per_page must be <= 100"
+        '401':
+          description: Unauthorized (missing/invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    error:
+                      code: "UNAUTHORIZED"
+                      message: "Missing or invalid Authorization header"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                server_error:
+                  value:
+                    error:
+                      code: "SERVER_ERROR"
+                      message: "Unexpected error"
+      security:
+        - bearerAuth: []
+  /api/v1/features/{id}:
+    get:
+      summary: Get feature by id
+      description: Returns a single Feature resource by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful feature retrieval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feature'
+              examples:
+                default:
+                  value:
+                    id: "f_01GXYZ"
+                    title: "New onboarding flow"
+                    description: "A/B test for onboarding screens"
+                    created_at: "2026-03-01T12:34:56Z"
+                    updated_at: "2026-03-02T11:20:00Z"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  value:
+                    error:
+                      code: "UNAUTHORIZED"
+                      message: "Missing or invalid Authorization header"
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                not_found:
+                  value:
+                    error:
+                      code: "NOT_FOUND"
+                      message: "Feature not found"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Feature:
+      type: object
+      required: [id, title, created_at]
+      properties:
+        id:
+          type: string
+          example: "f_01GXYZ"
+        title:
+          type: string
+          example: "New onboarding flow"
+        description:
+          type: string
+          nullable: true
+          example: "A/B test for onboarding screens"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-03-01T12:34:56Z"
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-03-02T11:20:00Z"
+    FeaturesListResponse:
+      type: object
+      required: [total_count, page, per_page, items]
+      properties:
+        total_count:
+          type: integer
+          example: 123
+        page:
+          type: integer
+          example: 1
+        per_page:
+          type: integer
+          example: 20
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: "INVALID_PARAMS"
+            message:
+              type: string
+              example: "Validation failed"
+            details:
+              type: object
+              nullable: true
+              example: {"per_page": "must be <= 100"}
