@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Example API
+  version: "1.1"
+  description: Updated API surface reviewed by backend (Marcus). See example requests in ../docs/api_example_requests.md
+servers:
+  - url: https://api.example.com
+    description: Production
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    pageParam:
+      name: page
+      in: query
+      description: Page number (1-based)
+      required: false
+      schema:
+        type: integer
+        default: 1
+    sizeParam:
+      name: size
+      in: query
+      description: Page size
+      required: false
+      schema:
+        type: integer
+        default: 20
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+paths:
+  /api/v1/items:
+    get:
+      summary: List items
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/sizeParam'
+      responses:
+        '200':
+          description: A paginated list of items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  size:
+                    type: integer
+              examples:
+                default:
+                  summary: Example response
+                  value:
+                    items:
+                      - id: "11111111-1111-1111-1111-111111111111"
+                        title: "Sample item"
+                        description: "A sample item"
+                        created_at: "2026-01-01T12:00:00Z"
+                    total: 1
+                    page: 1
+                    size: 20
+    post:
+      summary: Create an item
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+              required:
+                - title
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: Idempotency key for safe retries. 36-characters recommended.
+          required: false
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Validation error
+  /api/v1/items/{id}:
+    get:
+      summary: Get an item
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Not Found
