@@ -36,7 +36,7 @@ Acceptance criteria for publishing
 - SDK/Frontend owners (Kevin) notified to update client libraries and examples.
 - QA to validate pagination behavior with customer-provided examples.
 
-Related files / PRs
+Related files /PRs
 - Reference: output/docs/docs_pr_followup.md (mapping and priority)
 
 Last updated: by DocsSync agent
