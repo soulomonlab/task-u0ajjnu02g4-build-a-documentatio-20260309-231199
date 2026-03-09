@@ -1,43 +1,53 @@
-Situation
+Title: PR Opening & Follow-up Actions
 
-Emma created a consolidated PR draft (output/docs/docs_followup_pr.md) that summarizes impacted areas, recommended tasks, acceptance criteria, priority, timeline, and open questions. The draft contains placeholder API examples and runbook steps that require confirmation from Backend (Marcus) and DevOps (Noah) before the PR can be finalized.
+Purpose
+- Provide step-by-step actions for Emma to open the PR, link the two reviewer reports, assign reviewers, set SLAs/labels, and notify Chris so reviewer tasks can be tracked.
 
-Complication
+Files to link in the PR
+- output/reports/pr_opening_and_reviewer_plan.md
+- output/reports/reviewer_tasks_for_marcus_noah.md
 
-Placeholders block final authoring of the PR and risk shipping inaccurate docs (API specs, runbooks, release notes). To unblock, we need canonical API examples and verified runbook steps in a prescribed format so docs are reviewable and automatable (SDK updates, release notes).
+PR metadata (use these exactly)
+- Suggested PR title: "Finalize docs & runbook placeholders — [feature-name]"
+- Labels to add: needs-backend-review, needs-devops-review, sla-48h, docs
+- Reviewers to add: Marcus (Backend), Noah (DevOps)
 
-Resolution — created: output/docs/docs_followup_pr_actions.md
+PR description template (paste into PR body)
 
-This file contains:
-- A short checklist of the exact placeholders in Emma's draft that must be replaced.
-- Templates for canonical API examples (endpoint, method, headers, request JSON, response JSON, errors, status codes) and for SDK impact list (language, package, versions, breaking changes).
-- Runbook step template (commands, env vars, expected output, monitoring checks, rollback commands, verification steps).
-- Acceptance criteria for "docs ready for PR" and suggested PR branch/files: api_update_plan.md, ops_runbook_update.md, release_notes_draft.md.
-- Clear next-step assignments for Marcus (backend API examples + SDK languages) and Noah (ops runbook + verification & monitoring thresholds), and decision request for Chris (create PR or delegate to Emma).
+Summary:
+- Short one-line summary of what this PR aims to finalize.
 
-Key templates included (use verbatim when replying):
-- API example template: method, endpoint, path params, query params, headers, request JSON, success response (status & JSON), common error responses (status, error code, message), rate-limit/quota notes.
-- Runbook template: preconditions, exact shell commands, expected outputs, success criteria, troubleshooting notes, rollback commands, estimated time, required access.
+Context / Links:
+- Decision & timeline: see output/reports/pr_opening_and_reviewer_plan.md
+- Reviewer tasks & suggested comments: see output/reports/reviewer_tasks_for_marcus_noah.md
 
-Acceptance criteria (short):
-1) All placeholders replaced with canonical examples from Marcus/Noah.
-2) Runbook steps validated in staging and include monitoring/alert thresholds.
-3) SDK impact list completed for supported languages.
-4) PR created with files: api_update_plan.md, ops_runbook_update.md, release_notes_draft.md and assigned reviewers Marcus/Noah/Kevin.
+What I need from reviewers (Acceptance criteria - ALL required):
+1. Marcus (Backend): confirm or replace the placeholder API examples with final endpoints, request/response JSON, and any migration notes.
+2. Noah (DevOps): confirm or replace runbook steps, validate rollout/rollback commands, and add any infra-specific prerequisites.
+3. Both reviewers must leave explicit ACK comments in the PR and mark which files they changed or require changes to.
 
-Suggested timeline: 2 business days for canonical examples + 1 business day for runbook validation; priority: High (P1).
+SLA and process
+- SLA: 48 hours from PR opening. If a reviewer cannot complete within SLA, they must comment with expected ETA and notify Chris.
+- If both reviewers approve within 48h, PR owner (Emma) should merge according to merge policy.
+- If unresolved after 48h, revert PR to draft and tag Chris for escalation.
 
-Files created:
-- output/docs/docs_followup_pr_actions.md
+Checklist for PR opener (tick before opening)
+- [ ] Insert the PR description template and link the two report files above.
+- [ ] Add Marcus and Noah as reviewers.
+- [ ] Apply labels: needs-backend-review, needs-devops-review, sla-48h, docs.
+- [ ] Attach any additional runbook artifacts if available.
+- [ ] Paste the suggested reviewer comment (below) into the PR to make review action explicit.
 
-Next actions (for Chris):
-- Decide whether you will create the PR or have Emma create it.
-- If you will create it: create PR branch and files (api_update_plan.md, ops_runbook_update.md, release_notes_draft.md) and request reviews from Marcus/Noah/Kevin.
-- Request Marcus to supply API examples in the API template and list affected SDK languages/packages.
-- Request Noah to supply runbook steps and monitoring thresholds using the runbook template and to validate in staging.
+Suggested reviewer comment to paste (so Chris can automate later):
+"@Marcus / @Noah — Please confirm or replace the placeholders in the PR within 48 hours. See the reviewer tasks here: output/reports/reviewer_tasks_for_marcus_noah.md. If you need more time, reply with ETA and @Chris for escalation."
 
-Notes / rollback: If canonical examples are unavailable within timeline, mark placeholders in PR and add a follow-up task for engineering to supply examples within the release window. Keep doc changes reversible and clearly tagged with version and author.
+Post-PR opening actions (what Emma does after opening)
+1. Post the PR link in the Chris thread and ping @Chris (Chris will create reviewer tasks in the tracker and post reviewer comments on the PR).
+2. Monitor reviewer responses for 48 hours and update labels accordingly.
 
-----
+Rollback & escalation note
+- If review blockers are discovered that prevent merging, mark PR as draft and escalate to Chris with a summary of the blocker, impacted systems, and next steps.
 
-If you want, I can open reviewer tasks for Marcus/Noah with the exact templates pre-filled (I will create those files under output/docs and create tasks). Otherwise please confirm and I'll wait for Marcus/Noah inputs.
+Contact
+- Chris (Owner of reviewer coordination and monitoring)
+
