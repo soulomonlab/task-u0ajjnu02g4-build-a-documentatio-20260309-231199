@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: Features API (fragment)
+  version: 1.0.0
+paths:
+  /api/v1/features:
+    get:
+      summary: List features (cursor pagination)
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - in: query
+          name: cursor
+          schema:
+            type: string
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: ['created_at','-created_at','updated_at','-updated_at']
+            default: '-created_at'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FeatureListItem'
+                  limit:
+                    type: integer
+                  next_cursor:
+                    type: string
+        '401':
+          $ref: '#/components/responses/AuthRequired'
+        '429':
+          $ref: '#/components/responses/RateLimit'
+  /api/v1/features/{feature_id}:
+    get:
+      summary: Get feature detail
+      parameters:
+        - in: path
+          name: feature_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDetail'
+        '401':
+          $ref: '#/components/responses/AuthRequired'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    FeatureListItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+          nullable: true
+        author:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        tags:
+          type: array
+          items:
+            type: string
+        published:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    FeatureDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        author:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            avatar_url:
+              type: string
+              nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        published:
+          type: boolean
+        created_at:
+          type: string
+        updated_at:
+          type: string
+  responses:
+    AuthRequired:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    RateLimit:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      properties:
+        error_code:
+          type: string
+        message:
+          type: string
